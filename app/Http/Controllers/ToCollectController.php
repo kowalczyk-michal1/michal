@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ToCollectRequest;
 use App\Http\Requests\ToCollectUpdateRequest;
+use App\Http\Requests\ToCollectNotesRequest;
+use App\Http\Requests\ToCollectActionRequest;
 use Illuminate\Http\Request;
 use App\ToCollect;
+use App\ToCollectNotes;
+use App\ToCollectAction;
 
 class ToCollectController extends Controller
 {
@@ -67,16 +71,59 @@ class ToCollectController extends Controller
 
     }
 
+    public function storenote(ToCollect $row,ToCollectNotesRequest $request)
+    {
+        $description = $request->input('description');
+
+        ToCollectNotes::create([
+            'to_collect_id' => $row->id,
+            'description' => $description
+        ]);
+
+        return redirect()->route('tocollect.show', ['row' => $row['id']]);
+
+    }
+
+    public function storeaction(ToCollect $row,ToCollectActionRequest $request)
+    {
+        $title = $request->input('title');
+        $type = $request->input('type');
+        $price = $request->input('price');
+
+        ToCollectAction::create([
+            'to_collect_id' => $row->id,
+            'description' => $title,
+            'type' => $type,
+            'price' => $price
+        ]);
+
+
+        $ToCollectModel = new ToCollect();
+
+        $status = $ToCollectModel->action($row->status, $type, $price);
+
+        $row->update(['status' => $status]);
+
+
+        return redirect()->route('tocollect.show', ['row' => $row['id']]);
+    }
+
     /**
      * Show all tasks and manage
      *
      * @return \Illuminate\Http\Response
      */
-    public function show()
+    public function show(ToCollect $row, $action='')
     {
-        $todo = Todo::orderBy('id', 'desc')->get();
+        $ToCollectModel = new ToCollect();
 
-        return view('todo.show', compact('todo'));
+        $notes = ToCollectNotes::where('to_collect_id', $row->id)->orderby('id', 'DESC')->get();
+
+        $stories = ToCollectAction::where('to_collect_id', $row->id)->orderby('id', 'DESC')->get();
+
+        $result = $ToCollectModel->status($row->price, $row->status);
+
+        return view('tocollect.show', compact('row', 'notes', 'stories', 'action', 'result'));
     }
 
     /**

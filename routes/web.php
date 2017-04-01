@@ -133,6 +133,26 @@ Route::group([
         'uses' => 'ToCollectController@update',
         'as' => 'tocollect.update'
     ]);
+
+    Route::get('tocollect/show/{row}', [
+        'uses' => 'ToCollectController@show',
+        'as' => 'tocollect.show'
+    ]);
+
+    Route::get('tocollect/show/{row}/action/{action}', [
+        'uses' => 'ToCollectController@show',
+        'as' => 'tocollect.storenote'
+    ]);
+
+    Route::post('tocollect/show/{row}/action/{action}', [
+        'uses' => 'ToCollectController@storenote',
+        'as' => 'tocollect.storenote'
+    ]);
+
+    Route::post('tocollect/show/{row}/action/{action}', [
+        'uses' => 'ToCollectController@storeaction',
+        'as' => 'tocollect.storeaction'
+    ]);
 });
 
 Auth::routes();
