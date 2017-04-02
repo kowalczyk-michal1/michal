@@ -7,3 +7,7 @@ $(function() {
         $(this).find(".note_description").toggle('slow');
     });
 });
+
+function shownotedesc(id) {
+    $("#notedesc"+id+"").toggle('slow');
+}
